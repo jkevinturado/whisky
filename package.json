@@ -1,0 +1,42 @@
+{
+  "name": "whisky",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.10.5",
+    "@emotion/styled": "^11.10.5",
+    "@fortawesome/fontawesome-svg-core": "^6.2.1",
+    "@fortawesome/free-solid-svg-icons": "^6.2.1",
+    "@fortawesome/react-fontawesome": "^0.2.0",
+    "@headlessui/react": "^1.7.9",
+    "@heroicons/react": "^2.0.14",
+    "@mui/icons-material": "^5.11.0",
+    "@mui/material": "^5.11.8",
+    "@next/font": "13.1.1",
+    "babel-plugin-macros": "^3.1.0",
+    "dayjs": "^1.11.7",
+    "eslint": "8.31.0",
+    "eslint-config-next": "13.1.1",
+    "firebase": "^9.17.1",
+    "flowbite": "^1.6.3",
+    "flowbite-datepicker": "^1.2.2",
+    "next": "13.1.1",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-slick": "^0.29.0",
+    "react-tailwindcss-datepicker": "^1.4.2",
+    "slick-carousel": "^1.8.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.3",
+    "autoprefixer": "^10.4.13",
+    "postcss": "^8.4.21",
+    "tailwindcss": "^3.2.4"
+  }
+}
