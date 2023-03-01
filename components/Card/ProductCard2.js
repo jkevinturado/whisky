@@ -7,10 +7,11 @@ import {
   faCartPlus,
   faStar,
 } from '@fortawesome/free-solid-svg-icons';
-import { getImageFireStorage } from '../../utils/firebase';
+import { useAuth } from '../../store/userContext';
 
 const ProductCard2 = ({ data }) => {
   const router = useRouter();
+  const { addToCart } = useAuth();
   const { id, thumbnailfile, name, category, price } = data;
   const maxStar = 5;
 
@@ -21,21 +22,23 @@ const ProductCard2 = ({ data }) => {
     return <FontAwesomeIcon inv icon={faStar} style={{ color: '#cbd5e1' }} />;
   };
 
-  const handleClickProductDetails = (id) => {
-    router.push({
-      pathname: '/products/[id]',
-      query: { id },
-    });
+  const handleClickProductDetails = (e, id) => {
+    if (e.target.id === 'product-container')
+      router.push({
+        pathname: '/products/[id]',
+        query: { id },
+      });
   };
 
   return (
     <>
       <div
-        onClick={() => handleClickProductDetails(id)}
-        className='card-container w-1/5 h-full m-2 justify-center items-center bg-white border-2 border-gray-300 shadow-md rounded-md overflow-hidden  hover:shadow-xl hover:bg-blend-overlay transition ease-in duration-100 cursor-pointer '
+        id='product-container'
+        onClick={(e) => handleClickProductDetails(e, id)}
+        className='card-container w-52 h-full m-2 justify-center items-center bg-white border-2 border-gray-300 shadow-md rounded-md overflow-hidden  hover:shadow-xl hover:bg-blend-overlay transition ease-in duration-100 cursor-pointer '
       >
-        <div className='card-content w-48'>
-          <div className='card-image '>
+        <div className='card-content'>
+          <div className='card-image h-full w-full'>
             <Image
               width={640}
               height={640}
@@ -53,7 +56,9 @@ const ProductCard2 = ({ data }) => {
             <div className='card-title'>
               <div className='product-category text-xs mb-2'>{category}</div>
               <div className='product-name'>
-                <p className='truncate text-sm text-gray-500'>{name}</p>
+                <p className='truncate text-sm text-gray-600 font-medium'>
+                  {name}
+                </p>
               </div>
             </div>
             <div className='product-rating flex justify-start items-center text-xs  italic'>
@@ -85,7 +90,10 @@ const ProductCard2 = ({ data }) => {
             <button className='w-10 h-10 rounded-full border-2 border-gray-500 hover:bg-emerald-500 hover:text-white hover:border-0 text-gray-500 transition ease-in duration-200'>
               <FontAwesomeIcon icon={faThumbsUp} />
             </button>
-            <button className='w-10 h-10 rounded-full border-2 border-gray-500 hover:bg-emerald-500 hover:text-white hover:border-0 text-gray-500 transition ease-in duration-200'>
+            <button
+              onClick={() => addToCart(data)}
+              className='w-10 h-10 rounded-full border-2 border-gray-500 hover:bg-emerald-500 hover:text-white hover:border-0 text-gray-500 transition ease-in duration-200'
+            >
               <FontAwesomeIcon icon={faCartPlus} />
             </button>
           </div>

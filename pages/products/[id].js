@@ -55,7 +55,7 @@ function convertTimestamp(timestamp) {
   return date;
 }
 
-export const getStaticProps = async (context) => {
+export const getServerSideProps = async (context) => {
   const { params } = context;
 
   const productid = params.id;
@@ -76,15 +76,15 @@ export const getStaticProps = async (context) => {
   };
 };
 
-export const getStaticPaths = async () => {
-  return {
-    paths: [
-      {
-        params: { id: 'Zm5egDVbxSFDESoMXZvD' },
-      },
-    ],
-    fallback: 'blocking',
-  };
-};
+// export const getStaticPaths = async () => {
+//   return {
+//     paths: [
+//       {
+//         params: { id: 'Zm5egDVbxSFDESoMXZvD' },
+//       },
+//     ],
+//     fallback: 'blocking',
+//   };
+// };
 
 export default ProductDetails;

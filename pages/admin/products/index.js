@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import Image from 'next/image';
-import Header from '../../../components/Header/Header2';
+import Header from '../../../components/Layout/Header/Header2';
 import NewProduct from '../../../components/Form/Product/NewProduct';
-import Modal from '../../../components/Dialogs/Modal';
 import {
   GetFirebaseProductsDB,
   getImageFireStorage,
 } from '../../../utils/firebase';
+
+import { DialogContext } from '../../../store/dialogContext';
 
 const tableHeader = [
   { key: 'Product', title: 'Product' },
@@ -18,7 +19,7 @@ const tableHeader = [
 ];
 
 export default function AdminProductPage() {
-  const [showModal, setShowModal] = useState(false);
+  const { showModal } = useContext(DialogContext);
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
@@ -36,31 +37,11 @@ export default function AdminProductPage() {
   }, []);
 
   const openModal = () => {
-    setShowModal(true);
+    showModal({ title: 'Add Product', content: <NewProduct /> });
   };
-
-  const handleTableIMage = async (thumbnailfile) => {
-    const url = await getImageFireStorage(thumbnailfile);
-    return <Image src={url} alt='Apple Watch' width={192} height={192} />;
-  };
-
-  //   console.log(products);
-
-  //   products.map(async ({ thumbnailfile }) => {
-  //     console.log(await getImageFireStorage(thumbnailfile));
-  //   });
 
   return (
     <div>
-      <Header />
-      <Modal
-        isModalOpen={showModal}
-        onClose={() => setShowModal(false)}
-        title='New Product'
-      >
-        <NewProduct />
-      </Modal>
-
       <section className='product_header flex flex-col w-full h-max p-8 justify-center items-center'>
         <div className='flex w-9/12 justify-between item-center'>
           <div className='w-/12'>

@@ -6,12 +6,14 @@ import {
   FacebookAuthProvider,
   signInWithPopup,
   signInWithEmailAndPassword,
+  signOut,
 } from 'firebase/auth';
 import {
   getFirestore,
   addDoc,
   getDocs,
   getDoc,
+  setDoc,
   collection,
   query,
   doc,
@@ -19,8 +21,8 @@ import {
 import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 import { firebaseConfig } from '../config';
 
-const firebase = initializeApp(firebaseConfig);
-const fsAuth = getAuth(firebase);
+export const firebase = initializeApp(firebaseConfig);
+export const fsAuth = getAuth(firebase);
 const fsDB = getFirestore(firebase);
 const fsStorage = getStorage(firebase);
 const fsGoogleProvider = new GoogleAuthProvider();
@@ -52,9 +54,34 @@ export const getImageFireStorage = async (imgpath) => {
 };
 
 //auth
-export const FirebaseCreateUser = async (email, password) => {
+export const FirebaseCreateUser = async (userdata) => {
   try {
-    await createUserWithEmailAndPassword(fsAuth, email, password);
+    const { email, password, firstName, lastName, birthdate, gender } =
+      userdata;
+    const res = await createUserWithEmailAndPassword(fsAuth, email, password);
+
+    const {
+      user: { uid, providerId, accessToken, refreshToken },
+      _tokenResponse: { localId, idToken, expiresIn },
+    } = res;
+
+    await FirebaseSaveUsertoDB({
+      ...userdata,
+      id: uid || localId,
+      provider: providerId,
+      firstname: firstName,
+      lastname: lastName,
+      fullname: `${firstName.trim()} ${lastName.trim()}`,
+      profilePicURL: null,
+      birthdate,
+      gender,
+      email,
+      password,
+      token: accessToken || idToken,
+      refreshToken,
+      tokenExpiration: expiresIn,
+    });
+    return res;
   } catch (error) {
     console.log(error);
   }
@@ -62,7 +89,8 @@ export const FirebaseCreateUser = async (email, password) => {
 
 export const FireBaseSignWithEmailandPass = async (email, password) => {
   try {
-    await signInWithEmailAndPassword(fsAuth, email, password);
+    const res = await signInWithEmailAndPassword(fsAuth, email, password);
+    return res;
   } catch (error) {
     console.log(error);
   }
@@ -70,7 +98,49 @@ export const FireBaseSignWithEmailandPass = async (email, password) => {
 
 export const FirebaseGoogleSignIn = async () => {
   try {
-    await signInWithPopup(fsAuth, fsGoogleProvider);
+    const res = await signInWithPopup(fsAuth, fsGoogleProvider);
+
+    const {
+      providerId,
+      user: { uid, accessToken, displayName, refreshToken, photoURL },
+      _tokenResponse: {
+        localId,
+        lastName,
+        firstName,
+        fullName,
+        email,
+        idToken,
+        expiresIn,
+      },
+    } = res;
+
+    const userdata = {
+      id: uid || localId,
+      provider: providerId,
+      firstname: firstName || null,
+      lastname: lastName || null,
+      fullname: displayName || fullName,
+      gender: null,
+      birthdate: null,
+      email,
+      password: null,
+      token: accessToken || idToken,
+      refreshToken,
+      tokenExpiration: expiresIn || null,
+      profilePicURL: photoURL || null,
+    };
+    await FirebaseSaveUsertoDB(userdata);
+    return res;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const FirebaseSignOut = async () => {
+  try {
+    const res = await signOut(fsAuth);
+    console.log(res);
+    return res;
   } catch (error) {
     console.log(error);
   }
@@ -78,29 +148,50 @@ export const FirebaseGoogleSignIn = async () => {
 
 export const FirebaseFacebookSignIn = async () => {
   try {
-    await signInWithPopup(fsAuth, fsFacebookProvider);
+    const res = await signInWithPopup(fsAuth, fsFacebookProvider);
+    return res;
   } catch (error) {
     console.log(error);
   }
 };
 
 //database crud
-export const FirebaseSaveUsertoDB = async ({
-  firstName,
-  lastName,
-  birthdate,
-  gender,
-  email,
-  password,
-}) => {
+const FirebaseSaveUsertoDB = async (userdata) => {
   try {
-    await addDoc(userCollection, {
-      firstname: firstName,
-      lastname: lastName,
+    const {
+      id,
+      provider,
+      firstname,
+      lastname,
+      fullname,
       gender,
       birthdate,
       email,
       password,
+      token,
+      refreshToken,
+      tokenExpiration,
+      profilePicURL,
+    } = userdata;
+
+    await setDoc(doc(fsDB, 'users', id), {
+      provider,
+      firstname,
+      lastname,
+      fullname,
+      profilePicURL,
+      gender,
+      birthdate,
+      email,
+      password,
+      token,
+      refreshToken,
+      tokenExpiration,
+      //default columns
+      cart: [],
+      createdAt: new Date(),
+      updatedAt: null,
+      isActive: true,
     });
   } catch (error) {
     console.log(error);
@@ -119,7 +210,20 @@ export const GetFirebaseUsersDB = async () => {
   try {
     const data = await getDocs(userCollection);
     return data;
-  } catch (error) {}
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const GetUserByID = async (id) => {
+  try {
+    const userRef = doc(fsDB, 'users', id);
+    const responsedata = await getDoc(userRef);
+
+    return responsedata.data();
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 export const GetFirebaseProductsDB = async () => {
@@ -139,13 +243,4 @@ export const GetFirebaseProductsById = async (id) => {
 
     return responsedata.data();
   } catch (error) {}
-};
-
-export const GetFirebaseCurrentUser = () => {
-  try {
-    const currentUser = fsAuth?.currentUser;
-    return currentUser;
-  } catch (error) {
-    console.log(error);
-  }
 };

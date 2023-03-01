@@ -1,37 +1,31 @@
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import React, { useState, useEffect } from 'react';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import GoogleIcon from '@mui/icons-material/Google';
 
-import {
-  FireBaseSignWithEmailandPass,
-  GetFirebaseCurrentUser,
-  FirebaseGoogleSignIn,
-  FirebaseFacebookSignIn,
-} from '../../../utils/firebase';
+import { useAuth } from '../../../store/userContext';
 
 const FormLogin2 = () => {
+  const router = useRouter();
+  const { user, login, signInWithFaceBook, signInWithGoogle } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [submitted, setSubmitted] = useState(false);
 
   const handleSignInWithEmailandPass = async () => {
     try {
-      await FireBaseSignWithEmailandPass(email, password);
-      setSubmitted(true);
+      login(email, password);
+      router.replace('/');
     } catch (error) {
       console.log(error);
     }
   };
 
   useEffect(() => {
-    const getUsers = async () => {
-      const currentUser = GetFirebaseCurrentUser();
-      console.log(currentUser);
-    };
-    getUsers();
-    setSubmitted(false);
-  }, [submitted]);
+    if (user) {
+      router.replace('/');
+    }
+  }, [router, user]);
 
   return (
     <div className='block w-11/12 md:flex lg:w-8/12 xl:w-6/12 justify-center items-center bg-white border rounded-lg shadow-lg shadow-gray-300'>
@@ -43,7 +37,7 @@ const FormLogin2 = () => {
           <form className='space-y-4 md:space-y-6' action='#'>
             <div>
               <label
-                for='email'
+                htmlFor='email'
                 className='block mb-2 text-sm font-medium text-gray-900 '
               >
                 Login with Email
@@ -61,7 +55,7 @@ const FormLogin2 = () => {
             </div>
             <div>
               <label
-                for='password'
+                htmlFor='password'
                 className='block mb-2 text-sm font-medium text-gray-900 '
               >
                 Password
@@ -89,7 +83,7 @@ const FormLogin2 = () => {
                   />
                 </div>
                 <div className='ml-3 text-sm'>
-                  <label for='remember' className='text-gray-500 '>
+                  <label htmlFor='remember' className='text-gray-500 '>
                     Remember me
                   </label>
                 </div>
@@ -120,9 +114,9 @@ const FormLogin2 = () => {
           </form>
         </div>
       </div>
-      <div class='inline-flex md:hidden items-center justify-center w-full'>
-        <hr class='w-4/5 h-px my-8 bg-slate-300 border-0 dark:bg-gray-700' />
-        <span class='absolute px-3 font-medium text-gray-900 -translate-x-1/2 bg-white left-1/2 dark:text-white dark:bg-gray-900'>
+      <div className='inline-flex md:hidden items-center justify-center w-full'>
+        <hr className='w-4/5 h-px my-8 bg-slate-300 border-0 dark:bg-gray-700' />
+        <span className='absolute px-3 font-medium text-gray-900 -translate-x-1/2 bg-white left-1/2 dark:text-white dark:bg-gray-900'>
           Or
         </span>
       </div>
@@ -140,7 +134,7 @@ const FormLogin2 = () => {
 
           <button
             type='button'
-            onClick={FirebaseFacebookSignIn}
+            onClick={signInWithFaceBook}
             className='w-full text-gray-500 border-2 p-2 rounded-full border-emerald-500 shadow-lg'
           >
             <FacebookIcon className='text-blue-900' />
@@ -148,7 +142,7 @@ const FormLogin2 = () => {
           </button>
           <button
             type='button'
-            onClick={FirebaseGoogleSignIn}
+            onClick={signInWithGoogle}
             className='w-full text-gray-500 border-2 p-2 rounded-full border-emerald-500 shadow-lg'
           >
             <GoogleIcon className='text-red-500' />

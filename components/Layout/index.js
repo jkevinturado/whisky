@@ -1,6 +1,7 @@
-import React from 'react';
-import HeaderBar from './Header';
-import Navbar from './Navbar';
+import React, { useContext } from 'react';
+import HeaderBar from './Header/Header';
+import Navbar from './Navbar/Navbar';
+import Modal from '../Dialogs/Modal';
 
 const Header = ({ children }) => {
   return (
@@ -9,7 +10,9 @@ const Header = ({ children }) => {
         <HeaderBar />
         <Navbar />
       </div>
-      {children}
+      <Modal />
+
+      <main>{children}</main>
     </>
   );
 };

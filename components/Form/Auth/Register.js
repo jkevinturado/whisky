@@ -1,19 +1,22 @@
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import React, { useState, useEffect } from 'react';
-import Datepicker from 'react-tailwindcss-datepicker';
-import {
-  FirebaseCreateUser,
-  FirebaseSaveUsertoDB,
-  GetFirebaseUsersDB,
-  GetFirebaseCurrentUser,
-  FirebaseGoogleSignIn,
-  FirebaseFacebookSignIn,
-} from '../../../utils/firebase';
 
+import { useAuth } from '../../../store/userContext';
+
+import Datepicker from 'react-tailwindcss-datepicker';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import GoogleIcon from '@mui/icons-material/Google';
 
-const FormLogin = () => {
+const FormRegister = () => {
+  const router = useRouter();
+  const {
+    registerWithEmailandPass,
+    user,
+    signInWithFaceBook,
+    signInWithGoogle,
+  } = useAuth();
+
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [birthdate, setBirthdate] = useState({
@@ -23,17 +26,12 @@ const FormLogin = () => {
   const [gender, setGender] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
-    const getUsers = async () => {
-      const userdata = await GetFirebaseUsersDB();
-      const currentUser = GetFirebaseCurrentUser();
-      console.log(currentUser);
-    };
-    getUsers();
-    setSubmitted(false);
-  }, [submitted]);
+    if (user) {
+      router.replace('/');
+    }
+  }, [router, user]);
 
   const handleValueChange = (newValue) => {
     console.log('newValue:', newValue);
@@ -41,19 +39,19 @@ const FormLogin = () => {
   };
 
   const SaveUser = async () => {
-    const userdata = {
-      firstName,
-      lastName,
-      birthdate,
-      gender,
-      email,
-      password,
-    };
+    try {
+      const userdata = {
+        firstName,
+        lastName,
+        birthdate,
+        gender,
+        email,
+        password,
+      };
 
-    console.log(userdata);
-    await FirebaseCreateUser(email, password);
-    await FirebaseSaveUsertoDB(userdata);
-    setSubmitted(true);
+      registerWithEmailandPass(userdata);
+      router.replace('/');
+    } catch (error) {}
   };
 
   return (
@@ -63,15 +61,16 @@ const FormLogin = () => {
           <h1 className='text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl '>
             Registration
           </h1>
-          <div className='space-y-4 md:space-y-6' action='#'>
+          <div className='space-y-4 md:space-y-6'>
             <div>
               <p className='text-sm text-gray-600 font-medium'>Sign up with</p>
             </div>
             <div className='flex justify-center items-center'>
               <div className='w-1/2'>
                 <button
-                  className='btn-primary bg-blue-900'
-                  onClick={FirebaseFacebookSignIn}
+                  // type='button'
+                  className='btn-primary bg-blue-900 text-white w-full'
+                  onClick={signInWithFaceBook}
                 >
                   <FacebookIcon className='text-white' />
                   Facebook
@@ -79,17 +78,18 @@ const FormLogin = () => {
               </div>
               <div className='w-1/2'>
                 <button
-                  className='btn-primary bg-red-500'
-                  onClick={FirebaseGoogleSignIn}
+                  // type='button'
+                  className='btn-primary bg-red-500 text-white w-full'
+                  onClick={signInWithGoogle}
                 >
                   <GoogleIcon className='text-white' />
                   Google
                 </button>
               </div>
             </div>
-            <div class='inline-flex  items-center justify-center w-full'>
-              <hr class='w-full h-px my-2 bg-slate-300 border-0 dark:bg-gray-700' />
-              <span class='absolute px-3 font-medium text-gray-900 -translate-x-1/2 bg-white left-1/2 dark:text-white dark:bg-gray-900'>
+            <div className='inline-flex  items-center justify-center w-full'>
+              <hr className='w-full h-px my-2 bg-slate-300 border-0 dark:bg-gray-700' />
+              <span className='absolute px-3 font-medium text-gray-900 -translate-x-1/2 bg-white left-1/2 dark:text-white dark:bg-gray-900'>
                 Or
               </span>
             </div>
@@ -209,4 +209,4 @@ const FormLogin = () => {
   );
 };
 
-export default FormLogin;
+export default FormRegister;

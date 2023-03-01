@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 
-import Header from '../components/Header/index';
 import ProductCard from '../components/Card/ProductCard';
 import ProductCard2 from '../components/Card/ProductCard2';
 // import FilterSideBar from '../components/FilterSideBar/index';
@@ -20,37 +19,26 @@ function convertTimestamp(timestamp) {
 }
 
 export default function Home(props) {
-  // const [products, setProducts] = useState([]);
-
   const { products } = props;
-
-  // useEffect(() => {
-  //   const getProductData = async () => {
-  //     const data = await GetFirebaseProductsDB();
-  //     console.log(data);
-  //     const products = await Promise.all(
-  //       data.map(async (product) => ({
-  //         ...product,
-  //         createdAt: convertTimestamp(product.createdAt),
-  //         thumbnailfile: await getImageFireStorage(product.thumbnailfile),
-  //       }))
-  //     );
-  //     console.log(products);
-  //     setProducts(products);
-  //   };
-  //   getProductData();
-  // }, []);
 
   return (
     <>
-      <Header />
-      <section className='flex h-max w-full p-8 bg-slate-300'>
-        {/* <Slider> */}
-        {products.map((product) => {
-          return <ProductCard2 key={product.id} data={product} />;
-        })}
-        {/* </Slider> */}
-      </section>
+      <div className='flex flex-col justify-center item-center w-full bg-gray-100 py-4'>
+        <div>
+          <h1 className='text-xl font-bold text-gray-800 text-center my-4'>
+            New Arrivals
+          </h1>
+        </div>
+        <div>
+          <section className='grid grid-cols-2 gap-6 w-max md:flex md:w-full md:h-max md:justify-center md:items-center md:p-4 '>
+            {/* <Slider> */}
+            {products.map((product) => {
+              return <ProductCard2 key={product.id} data={product} />;
+            })}
+            {/* </Slider> */}
+          </section>
+        </div>
+      </div>
       {/* <div className='flex bg-slate-300 h-1/2'></div> */}
     </>
   );

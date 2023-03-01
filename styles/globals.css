@@ -32,5 +32,5 @@
 }
 
 .btn-primary {
-  @apply w-full p-1.5 font-medium tracking-wide text-slate-100 border-2 rounded-md overflow-hidden;
+  @apply p-2 font-medium tracking-wide border-2 rounded-md overflow-hidden;
 }
