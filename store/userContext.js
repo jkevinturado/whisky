@@ -14,7 +14,7 @@ import {
   AddToCartDB,
   RemoveCartItemtoDB,
 } from '../utils/firebase';
-import { GetCartItems } from '../store/api/cart';
+import { GetCartItems, AddCartItems } from '../store/api/cart';
 import {
   cartReducer,
   INITIALIZED,
@@ -29,6 +29,7 @@ const initialState = {
   cart: [],
   cartItemCount: 0,
   wishlist: null,
+  wishlistItemCount: 0,
   login: (email, password) => {},
   logout: () => {},
   signInWithFaceBook: () => {},
@@ -50,11 +51,11 @@ const UserContextProvider = (props) => {
     () =>
       onAuthStateChanged(fsAuth, async (currentUser) => {
         if (currentUser) {
-          // const cart = await GetCartItems(currentUser.uid);
+          const cart = (await GetCartItems(currentUser.uid)) || [];
           dispatch({
             type: INITIALIZED,
-            // payload: { user: currentUser, cart, isInitialized: true },
-            payload: { user: currentUser, isInitialized: true },
+            payload: { user: currentUser, cart, isInitialized: true },
+            // payload: { user: currentUser, isInitialized: true },
           });
         } else {
           const guessCart = Cookies.get('cart')
@@ -139,9 +140,11 @@ const UserContextProvider = (props) => {
     }
 
     let cart = [...existingProduct, updatedProduct];
-    if (!state.user) {
-      Cookies.set('cart', JSON.stringify(cart));
+    if (state.user) {
+      await AddCartItems(state.user.uid, cart, cartItemCount);
+    } else {
     }
+    Cookies.set('cart', JSON.stringify(cart));
     dispatch({
       type: ADD_TO_CART,
       payload: {
