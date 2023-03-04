@@ -3,7 +3,7 @@ import React from 'react';
 const NavLinks = [
   { id: 1, link: '/', text: 'Home', sublink: [] },
   { id: 5, link: '#', text: 'Build Your PC', sublink: [] },
-  { id: 3, link: '#', text: 'Products', sublink: [] },
+  { id: 3, link: '/products', text: 'Products', sublink: [] },
   {
     id: 2,
     link: '#',

@@ -12,9 +12,9 @@ const FormRegister = () => {
   const router = useRouter();
   const {
     registerWithEmailandPass,
+    registerWithGoogle,
     user,
     signInWithFaceBook,
-    signInWithGoogle,
   } = useAuth();
 
   const [firstName, setFirstName] = useState('');
@@ -80,7 +80,7 @@ const FormRegister = () => {
                 <button
                   // type='button'
                   className='btn-primary bg-red-500 text-white w-full'
-                  onClick={signInWithGoogle}
+                  onClick={registerWithGoogle}
                 >
                   <GoogleIcon className='text-white' />
                   Google

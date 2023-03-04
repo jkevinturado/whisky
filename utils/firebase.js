@@ -14,9 +14,12 @@ import {
   getDocs,
   getDoc,
   setDoc,
+  updateDoc,
   collection,
   query,
   doc,
+  arrayUnion,
+  arrayRemove,
 } from 'firebase/firestore';
 import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 import { firebaseConfig } from '../config';
@@ -97,6 +100,15 @@ export const FireBaseSignWithEmailandPass = async (email, password) => {
 };
 
 export const FirebaseGoogleSignIn = async () => {
+  try {
+    const res = await signInWithPopup(fsAuth, fsGoogleProvider);
+    return res;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const FirebaseGoogleSignUp = async () => {
   try {
     const res = await signInWithPopup(fsAuth, fsGoogleProvider);
 
@@ -201,6 +213,26 @@ const FirebaseSaveUsertoDB = async (userdata) => {
 export const FirebaseSaveProducttoDB = async (productdata) => {
   try {
     await addDoc(productCollection, productdata);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const AddToCartDB = async (cart, userid) => {
+  try {
+    const userRef = doc(fsDB, 'users', userid);
+    const res = await updateDoc(userRef, { cart: arrayUnion(cart) });
+    console.log(res);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const RemoveCartItemtoDB = async (userid, productid) => {
+  try {
+    const userRef = doc(fsDB, 'users', userid);
+    const res = await updateDoc(userRef, { cart: arrayRemove() });
+    console.log(res);
   } catch (error) {
     console.log(error);
   }

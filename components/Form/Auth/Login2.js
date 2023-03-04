@@ -6,7 +6,7 @@ import GoogleIcon from '@mui/icons-material/Google';
 
 import { useAuth } from '../../../store/userContext';
 
-const FormLogin2 = () => {
+const FormLogin2 = (props) => {
   const router = useRouter();
   const { user, login, signInWithFaceBook, signInWithGoogle } = useAuth();
   const [email, setEmail] = useState('');
@@ -14,7 +14,7 @@ const FormLogin2 = () => {
 
   const handleSignInWithEmailandPass = async () => {
     try {
-      login(email, password);
+      await login(email, password);
       router.replace('/');
     } catch (error) {
       console.log(error);

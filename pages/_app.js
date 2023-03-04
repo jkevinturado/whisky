@@ -1,6 +1,5 @@
 import { useContext } from 'react';
 
-import Head from 'next/head';
 import Header from '../components/Layout/index';
 import '../styles/globals.css';
 
@@ -12,13 +11,6 @@ export default function App({ Component, pageProps }) {
     <>
       <DialogContextProvider>
         <UserContextProvider>
-          <Head>
-            <title>Project Whisky</title>
-            <meta
-              name='description'
-              value='A ecommerce selling Pc components/parts, laptops, peripheral, etc. Built in NextJs/React, Tailwindcss, firebase'
-            />
-          </Head>
           <Header>
             <Component {...pageProps} />
           </Header>

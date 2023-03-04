@@ -1,6 +1,5 @@
 import React from 'react';
 import LoginForm from '../../components/Form/Auth/Login2';
-import Header from '../../components/Layout/Header/Header2';
 
 const LoginPage = () => {
   return (
