@@ -1,14 +1,13 @@
 import { connect, disconnect } from '../../../../utils/database';
-import CartModel from '../../../../models/Cart';
+import WishlistModel from '../../../../models/Wishlist';
 
 export default async function handler(req, res) {
   await connect();
 
   try {
     const { userid } = req.body;
-    const cart = await CartModel.findOne({ userid }).exec();
-    res.status(200).json(cart);
-
+    const wishlist = await WishlistModel.findOne({ userid }).exec();
+    res.status(200).json(wishlist);
     await disconnect();
   } catch (error) {
     console.log(error);

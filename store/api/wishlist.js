@@ -1,9 +1,9 @@
 import axios from '../../utils/axios';
 
-export const GetCartItems = async (uid) => {
+export const GetWishLitsItems = async (uid) => {
   try {
     const res = await axios.post(
-      '/api/collections/carts/',
+      '/api/collections/wishlist',
       { userid: uid },
       { headers: { 'Content-Type': 'application/json' } }
     );
@@ -13,23 +13,24 @@ export const GetCartItems = async (uid) => {
   }
 };
 
-export const AddCartItems = async (uid, cart, cartItemCount) => {
+export const AddWishLitsItems = async (uid, wishlist, wishlistItemCount) => {
   try {
     const res = await axios.post(
-      '/api/collections/carts/add',
-      { userid: uid, cart, cartItemCount },
+      '/api/collections/wishlist/add',
+      { userid: uid, wishlist, wishlistItemCount },
       { headers: { 'Content-Type': 'application/json' } }
     );
+    console.log(res.data);
     return res.data.data;
   } catch (error) {
     console.log(error);
   }
 };
 
-export const ResetCart = async (uid) => {
+export const ResetWishlist = async (uid) => {
   try {
     const res = await axios.post(
-      '/api/collections/carts/reset',
+      '/api/collections/wishlist/reset',
       { userid: uid },
       { headers: { 'Content-Type': 'application/json' } }
     );

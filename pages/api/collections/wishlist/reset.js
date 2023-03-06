@@ -1,18 +1,22 @@
 import { connect, disconnect } from '../../../../utils/database';
-import CartModel from '../../../../models/Cart';
+import WishlistModel from '../../../../models/Wishlist';
 
 export default async function handler(req, res) {
   await connect();
 
   try {
     const { userid } = req.body;
-    const cart = await CartModel.findOne({ userid }).exec();
-    res.status(200).json(cart);
 
-    await disconnect();
+    await WishlistModel.updateOne(
+      { userid },
+      { $set: { items: [], itemCount: 0 } }
+    );
+    res.status(200).json({ status: true });
+
+    disconnect();
   } catch (error) {
     console.log(error);
-    await disconnect();
+    disconnect();
     res.status(500).json({ status: 'error', message: error });
   }
 }

@@ -151,7 +151,6 @@ export const FirebaseGoogleSignUp = async () => {
 export const FirebaseSignOut = async () => {
   try {
     const res = await signOut(fsAuth);
-    console.log(res);
     return res;
   } catch (error) {
     console.log(error);

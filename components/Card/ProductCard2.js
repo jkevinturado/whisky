@@ -8,12 +8,18 @@ import {
   faStar,
 } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../../store/userContext';
+import { data } from 'autoprefixer';
 
 const ProductCard2 = ({ data }) => {
   const router = useRouter();
-  const { addToCart } = useAuth();
+  const { addToCart, toggleWishlist, wishlist } = useAuth();
   const { id, thumbnailfile, name, category, price } = data;
   const maxStar = 5;
+  const isWishlist = wishlist
+    ? wishlist.findIndex(({ productid }) => {
+        return productid === id;
+      })
+    : -1;
 
   const StarFillIcon = () => {
     return <FontAwesomeIcon icon={faStar} style={{ color: '#10b981' }} />;
@@ -87,12 +93,26 @@ const ProductCard2 = ({ data }) => {
             ₱ {price}
           </div>
           <div className='card-buttons flex justify-evenly items-center w-1/2 h-8'>
-            <button className='w-10 h-10 rounded-full border-2 border-gray-500 hover:bg-emerald-500 hover:text-white hover:border-0 text-gray-500 transition ease-in duration-200'>
-              <FontAwesomeIcon icon={faThumbsUp} />
-            </button>
+            {isWishlist === -1 && (
+              <button
+                onClick={() => toggleWishlist(data)}
+                className='w-10 h-10 rounded-full border-2 border-gray-500 hover:bg-emerald-500 hover:text-white hover:border-0 text-gray-500 transition ease-in duration-200'
+              >
+                <FontAwesomeIcon icon={faThumbsUp} />
+              </button>
+            )}
+            {isWishlist >= 0 && (
+              <button
+                onClick={() => toggleWishlist(data)}
+                className='w-10 h-10 rounded-full  bg-emerald-500 text-white border-0 hover:text-gray-500 hover:border-2 hover:bg-white border-gray-500 transition ease-in duration-200'
+              >
+                <FontAwesomeIcon icon={faThumbsUp} />
+              </button>
+            )}
+
             <button
               onClick={() => addToCart(data)}
-              className='w-10 h-10 rounded-full border-2 border-gray-500 hover:bg-emerald-500 hover:text-white hover:border-0 text-gray-500 transition ease-in duration-200'
+              className='w-10 h-10 center rounded-full border-2 border-gray-500 hover:bg-emerald-500 hover:text-white hover:border-0 text-gray-500 transition ease-in duration-200'
             >
               <FontAwesomeIcon icon={faCartPlus} />
             </button>

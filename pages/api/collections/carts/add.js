@@ -9,8 +9,11 @@ export default async function handler(req, res) {
     const findCart = await CartModel.findOne({ userid }).exec();
 
     if (findCart) {
-      await CartModel.updateOne({ userid }, { $set: { items: [] } });
-      await CartModel.updateOne({ userid }, { $set: { items: cart } });
+      //   await CartModel.updateOne({ userid }, { $set: { items: [] } });
+      await CartModel.updateOne(
+        { userid },
+        { $set: { items: cart, cartItemCount } }
+      );
     } else {
       await CartModel.create({
         userid,
@@ -18,6 +21,7 @@ export default async function handler(req, res) {
         cartItemCount,
       });
     }
+
     res.status(200).json({ status: true });
     disconnect();
   } catch (error) {

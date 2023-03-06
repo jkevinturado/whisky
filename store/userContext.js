@@ -14,11 +14,20 @@ import {
   AddToCartDB,
   RemoveCartItemtoDB,
 } from '../utils/firebase';
-import { GetCartItems, AddCartItems } from '../store/api/cart';
+import { GetCartItems, AddCartItems, ResetCart } from '../store/api/cart';
+import {
+  GetWishLitsItems,
+  AddWishLitsItems,
+  ResetWishlist,
+} from '../store/api/wishlist';
 import {
   cartReducer,
   INITIALIZED,
+  INITIALIZED_GUEST,
   ADD_TO_CART,
+  RESET_CART,
+  ADD_TO_WISHLIST,
+  RESET_WISHLIST,
   LOGIN,
   LOGOUT,
 } from './reducers/cart';
@@ -28,7 +37,7 @@ const initialState = {
   user: null,
   cart: [],
   cartItemCount: 0,
-  wishlist: null,
+  wishlist: [],
   wishlistItemCount: 0,
   login: (email, password) => {},
   logout: () => {},
@@ -39,6 +48,9 @@ const initialState = {
   refreshToken: () => {},
   addToCart: (product) => {},
   removeCartItem: (product) => {},
+  resetCart: () => {},
+  toggleWishlist: (product) => {},
+  resetWishlist: () => {},
 };
 
 const UserContext = createContext();
@@ -51,24 +63,49 @@ const UserContextProvider = (props) => {
     () =>
       onAuthStateChanged(fsAuth, async (currentUser) => {
         if (currentUser) {
-          const cart = (await GetCartItems(currentUser.uid)) || [];
+          const cart = await GetCartItems(currentUser.uid);
+          const wishlist = await GetWishLitsItems(currentUser.uid);
+
           dispatch({
             type: INITIALIZED,
-            payload: { user: currentUser, cart, isInitialized: true },
-            // payload: { user: currentUser, isInitialized: true },
+            payload: {
+              user: currentUser,
+              cart: cart.items.length > 0 ? cart.items : [],
+              wishlist: wishlist.items.length > 0 ? wishlist.items : [],
+              cartItemCount: cart ? cart.cartItemCount : 0,
+              wishlistItemCount: wishlist ? wishlist.itemCount : 0,
+              isInitialized: true,
+            },
           });
         } else {
-          const guessCart = Cookies.get('cart')
+          const guestCart = Cookies.get('cart')
             ? JSON.parse(Cookies.get('cart'))
             : [];
 
-          dispatch({ type: LOGOUT, payload: { cart: guessCart } });
+          const guestwishlist = Cookies.get('wishlist')
+            ? JSON.parse(Cookies.get('wishlist'))
+            : [];
+
+          console.log(guestCart);
+          console.log(guestwishlist);
+
+          dispatch({
+            type: INITIALIZED_GUEST,
+            payload: {
+              cart: guestCart,
+              cartItemCount: guestCart.length,
+              wishlist: guestwishlist,
+              wishlistItemCount: guestwishlist.length,
+            },
+          });
         }
       }),
 
     []
   );
-  console.log(state.cart);
+
+  // console.log(state.wishlist);
+  // console.log(state.cart);
 
   const login = async (email, password) => {
     const user = await FireBaseSignWithEmailandPass(email, password);
@@ -77,10 +114,11 @@ const UserContextProvider = (props) => {
 
   const logout = async () => {
     await FirebaseSignOut();
-    const guessCart = Cookies.get('cart')
-      ? JSON.parse(Cookies.get('cart'))
-      : [];
-    dispatch({ type: LOGOUT, payload: { cart: guessCart } });
+    Cookies.remove('cart', { path: '' });
+    Cookies.remove('wishlist', { path: '' });
+    dispatch({
+      type: LOGOUT,
+    });
   };
 
   const signInWithFaceBook = async () => {
@@ -102,20 +140,11 @@ const UserContextProvider = (props) => {
     dispatch({ type: LOGIN, payload: { user } });
   };
 
-  const removeCartItem = (product) => {
-    const updatedCart = cart.filter(({ productid }) => {
-      productid !== product.id;
-    });
-    setCart([...updatedCart]);
-  };
-
   const addToCart = async (product) => {
     let updatedProduct;
     let quantity = 1;
     let cartItemCount = 0;
     let existingProduct;
-
-    console.log(state.cart);
 
     const existingProductIndex = state.cart.findIndex(({ productid }) => {
       return productid === product.id;
@@ -128,23 +157,18 @@ const UserContextProvider = (props) => {
       existingProduct = state.cart.filter(
         ({ productid }) => productid !== product.id
       );
-      // await RemoveCartItemtoDB(user.uid, product.id);
-      // await AddToCartDB(updatedProduct, user.uid);
-      // setCart([...existingProduct, updatedProduct]);
     } else {
       existingProduct = state.cart;
       updatedProduct = { productid: product.id, quantity };
       cartItemCount = state.cartItemCount + quantity;
-      // setCart([...cart, updatedProduct]);
-      // await AddToCartDB(updatedProduct, user.uid);
     }
-
     let cart = [...existingProduct, updatedProduct];
     if (state.user) {
       await AddCartItems(state.user.uid, cart, cartItemCount);
     } else {
+      Cookies.set('cart', JSON.stringify(cart));
     }
-    Cookies.set('cart', JSON.stringify(cart));
+
     dispatch({
       type: ADD_TO_CART,
       payload: {
@@ -152,6 +176,66 @@ const UserContextProvider = (props) => {
         cartItemCount,
       },
     });
+  };
+
+  const removeCartItem = (product) => {};
+
+  const resetCart = async () => {
+    if (state.user) {
+      await ResetCart(state.user.uid);
+    } else {
+      Cookies.set('cart', JSON.stringify({ cart: [] }));
+    }
+    dispatch({ type: RESET_CART });
+  };
+
+  const toggleWishlist = async (product) => {
+    let updatedProduct;
+    let quantity = 1;
+    let wishlistItemCount = 0;
+    let existingProduct;
+    let wishlist;
+
+    console.log(state.wishlist);
+    const existingProductIndex = state.wishlist.findIndex(({ productid }) => {
+      return productid === product.id;
+    });
+
+    if (existingProductIndex === -1) {
+      existingProduct = state.wishlist;
+      updatedProduct = { productid: product.id };
+      wishlistItemCount = state.wishlistItemCount + quantity;
+
+      wishlist = [...existingProduct, updatedProduct];
+    } else {
+      wishlistItemCount = state.wishlistItemCount - quantity;
+      updatedProduct = state.wishlist.filter(
+        ({ productid }) => productid !== product.id
+      );
+      wishlist = [...updatedProduct];
+    }
+    if (state.user) {
+      await AddWishLitsItems(state.user.uid, wishlist, wishlistItemCount);
+    } else {
+      Cookies.set('wishlist', JSON.stringify(wishlist));
+    }
+
+    dispatch({
+      type: ADD_TO_WISHLIST,
+      payload: {
+        wishlist,
+        wishlistItemCount,
+      },
+    });
+  };
+
+  const resetWishlist = async () => {
+    if (state.user) {
+      await ResetWishlist(state.user.uid);
+    } else {
+      Cookies.set('wishlist', JSON.stringify({ wishlist: [] }));
+    }
+    dispatch({ type: RESET_WISHLIST });
   };
 
   const context = {
@@ -164,6 +248,9 @@ const UserContextProvider = (props) => {
     registerWithGoogle,
     addToCart,
     removeCartItem,
+    resetCart,
+    toggleWishlist,
+    resetWishlist,
   };
 
   return (

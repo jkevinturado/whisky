@@ -6,13 +6,17 @@ export default async function handler(req, res) {
 
   try {
     const { userid } = req.body;
-    const cart = await CartModel.findOne({ userid }).exec();
-    res.status(200).json(cart);
 
-    await disconnect();
+    await CartModel.updateOne(
+      { userid },
+      { $set: { items: [], cartItemCount: 0 } }
+    );
+    res.status(200).json({ status: true });
+
+    disconnect();
   } catch (error) {
     console.log(error);
-    await disconnect();
+    disconnect();
     res.status(500).json({ status: 'error', message: error });
   }
 }
