@@ -25,6 +25,7 @@ import {
   INITIALIZED,
   INITIALIZED_GUEST,
   ADD_TO_CART,
+  REMOVE_TO_CART,
   RESET_CART,
   ADD_TO_WISHLIST,
   RESET_WISHLIST,
@@ -55,9 +56,16 @@ const initialState = {
 
 const UserContext = createContext();
 
+const getCartItemCout = (cart) => {
+  let count =
+    cart.length > 0
+      ? cart.reduce((acc, o) => acc + parseInt(o.quantity), 0)
+      : 0;
+  return count;
+};
+
 const UserContextProvider = (props) => {
   const [state, dispatch] = useReducer(cartReducer, initialState);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
 
   useEffect(
     () =>
@@ -86,14 +94,11 @@ const UserContextProvider = (props) => {
             ? JSON.parse(Cookies.get('wishlist'))
             : [];
 
-          console.log(guestCart);
-          console.log(guestwishlist);
-
           dispatch({
             type: INITIALIZED_GUEST,
             payload: {
               cart: guestCart,
-              cartItemCount: guestCart.length,
+              cartItemCount: getCartItemCout(guestCart),
               wishlist: guestwishlist,
               wishlistItemCount: guestwishlist.length,
             },
@@ -101,7 +106,7 @@ const UserContextProvider = (props) => {
         }
       }),
 
-    []
+    [dispatch]
   );
 
   // console.log(state.wishlist);
@@ -153,16 +158,15 @@ const UserContextProvider = (props) => {
     if (existingProductIndex >= 0) {
       updatedProduct = state.cart[existingProductIndex];
       updatedProduct.quantity = updatedProduct.quantity + quantity;
-      cartItemCount = state.cartItemCount + quantity;
       existingProduct = state.cart.filter(
         ({ productid }) => productid !== product.id
       );
     } else {
       existingProduct = state.cart;
       updatedProduct = { productid: product.id, quantity };
-      cartItemCount = state.cartItemCount + quantity;
     }
     let cart = [...existingProduct, updatedProduct];
+    cartItemCount = getCartItemCout(cart);
     if (state.user) {
       await AddCartItems(state.user.uid, cart, cartItemCount);
     } else {
@@ -178,7 +182,25 @@ const UserContextProvider = (props) => {
     });
   };
 
-  const removeCartItem = (product) => {};
+  const removeCartItem = async (id) => {
+    const cart = state.cart.filter(({ productid }) => productid !== id);
+    const cartItemCount = getCartItemCout(cart);
+    console.log(cartItemCount, cart);
+
+    if (state.user) {
+      await AddCartItems(state.user.uid, cart, cartItemCount);
+    } else {
+      Cookies.set('cart', JSON.stringify(cart));
+    }
+
+    dispatch({
+      type: REMOVE_TO_CART,
+      payload: {
+        cart,
+        cartItemCount,
+      },
+    });
+  };
 
   const resetCart = async () => {
     if (state.user) {

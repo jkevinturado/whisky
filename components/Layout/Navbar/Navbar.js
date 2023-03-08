@@ -26,7 +26,7 @@ const Navbar = () => {
   return (
     <>
       <nav className='nav flex justify-center items-center'>
-        <ul className='nav-menu flex w-7/12 justify-center items-center border-t border-slate-300 text-black text-lg'>
+        <ul className='nav-menu flex w-8/12 justify-center items-center border-t border-slate-300 text-black text-lg'>
           {NavLinks.map(({ id, link, text, sublink }) => (
             <li key={id} className='p-4 hover:bg-gray-500 hover:text-white'>
               <a href={link} className='flex items-center'>

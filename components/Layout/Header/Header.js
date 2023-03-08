@@ -1,10 +1,41 @@
-import React, { useContext } from 'react';
+import { Menu } from '@headlessui/react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 import { useAuth } from '../../../store/userContext';
+import {
+  GetFirebaseProductsById,
+  getImageFireStorage,
+  getProductDetails,
+} from '../../../utils/firebase';
+import { currencyFormatter } from '../../../utils/format';
 
 const Header = () => {
-  const { user, wishlistItemCount, cartItemCount, logout } = useAuth();
+  const {
+    user,
+    cart,
+    wishlistItemCount,
+    cartItemCount,
+    logout,
+    removeCartItem,
+  } = useAuth();
+  const [cartproducts, setCartproducts] = useState([]);
+  const [subTotal, setSubTotal] = useState(0);
+  // console.log(cart);
+
+  useEffect(() => {
+    const cartproductdetails = async () => {
+      let data = await getProductDetails(cart);
+      console.log(data);
+      setCartproducts(data.productdetails);
+      setSubTotal(data.getSubTotal);
+    };
+
+    if (cart) {
+      cartproductdetails();
+    }
+  }, [cart]);
 
   return (
     <>
@@ -27,9 +58,9 @@ const Header = () => {
             </button>
           </div>
           <div className='user-profile-menu w-1/3 flex justify-evenly items-center space-x-4'>
-            <div>
-              <div className='wishlist-icon font-sans block mt-4 lg:inline-block lg:mt-0 lg:ml-6 align-middle text-black hover:text-gray-700'>
-                <a href='#' className='relative flex' role='buton'>
+            <div className='flex justify-evenly items-center space-x-4'>
+              <div className='wishlist-icon font-sans inline-block text-black hover:text-gray-700'>
+                <a href='#' className='relative' role='buton'>
                   <svg
                     xmlns='http://www.w3.org/2000/svg'
                     fill='none'
@@ -49,8 +80,14 @@ const Header = () => {
                   </span>
                 </a>
               </div>
-              <div className='cart-icon font-sans block mt-4 lg:inline-block lg:mt-0 lg:ml-6 align-middle text-black hover:text-gray-700'>
-                <a href='#' className='relative flex' role='buton'>
+              <Menu
+                as='div'
+                className='cart-icon relative inline-block font-sans text-black hover:text-gray-700'
+              >
+                <Menu.Button
+                  as='a'
+                  className='flex justify-center items-center'
+                >
                   <svg
                     xmlns='http://www.w3.org/2000/svg'
                     fill='none'
@@ -68,8 +105,78 @@ const Header = () => {
                   <span className='absolute right-0 top-0 rounded-full bg-red-600 w-4 h-4 top right p-0 m-0 text-white font-mono text-sm  leading-tight text-center'>
                     {cartItemCount}
                   </span>
-                </a>
-              </div>
+                </Menu.Button>
+
+                <Menu.Items
+                  as='ul'
+                  className='absolute mt-2 w-80 rounded-md shadow-lg bg-slate-100 overflow-y-scroll'
+                >
+                  {cartproducts &&
+                    cartproducts.map(
+                      ({
+                        productid,
+                        quantity,
+                        productdetails: { name, price, thumbnailfile, stocks },
+                      }) => (
+                        <Menu.Item
+                          as='li'
+                          key={productid}
+                          className='flex px-4 items-center text-xs font-light my-5  space-x-2'
+                        >
+                          <div className='flex w-1/5 h-12 object-fill'>
+                            <Image
+                              src={thumbnailfile}
+                              width={320}
+                              height={320}
+                              alt={name}
+                            />
+                          </div>
+                          <div className=' w-4/5'>
+                            <div className='font-medium truncate'>{name}</div>
+                            <div className='font-medium'>
+                              {currencyFormatter.format(price)}
+                            </div>
+                            <div className='flex justify-between'>
+                              <div>Quantity: {quantity}</div>
+                              <button
+                                onClick={() => removeCartItem(productid)}
+                                className='text-emerald-500 font-medium'
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          </div>
+                        </Menu.Item>
+                      )
+                    )}
+                  {!cartproducts && (
+                    <div className='flex justify-center items-center text-md italic'>
+                      Your cart is empty
+                    </div>
+                  )}
+                  <Menu.Item
+                    as='div'
+                    className='bottom-0 px-2 bg-white left-0 h-auto text-xs overflow-hidden shadow-md'
+                  >
+                    <div className='p-2 my-2 '>
+                      <div className='flex justify-between items-center'>
+                        <div className='text-sm font-medium mb-2'>
+                          Subtotal:
+                        </div>
+                        <div className='text-sm font-medium mb-2'>
+                          {currencyFormatter.format(subTotal)}
+                        </div>
+                      </div>
+                      <button className='w-full p-1  text-sm font-medium border-2 rounded-md overflow-hidden shadow-md border-emerald-400 hover:bg-emerald-500 hover:text-white'>
+                        Checkout
+                      </button>
+                      <div className='w-full p-1 mt-2 text-center text-sm font-medium border-2 rounded-md overflow-hidden shadow-md border-emerald-400 hover:bg-emerald-500 hover:text-white'>
+                        <Link href='/user/shopping-cart'>View Cart</Link>
+                      </div>
+                    </div>
+                  </Menu.Item>
+                </Menu.Items>
+              </Menu>
             </div>
 
             {!user && (

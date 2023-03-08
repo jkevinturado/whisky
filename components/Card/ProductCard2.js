@@ -8,7 +8,7 @@ import {
   faStar,
 } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../../store/userContext';
-import { data } from 'autoprefixer';
+import { currencyFormatter } from '../../utils/format';
 
 const ProductCard2 = ({ data }) => {
   const router = useRouter();
@@ -29,11 +29,14 @@ const ProductCard2 = ({ data }) => {
   };
 
   const handleClickProductDetails = (e, id) => {
-    if (e.target.id === 'product-container')
+    console.log(e);
+    if (e.target.id === 'product-container') {
+      console.log(e.target.id);
       router.push({
         pathname: '/products/[id]',
         query: { id },
       });
+    }
   };
 
   return (
@@ -89,8 +92,8 @@ const ProductCard2 = ({ data }) => {
         {/* end card-content */}
 
         <div className='card-footer flex m-4 items-center text-emerald-500'>
-          <div className='product-price w-1/2 text-lg text-black'>
-            ₱ {price}
+          <div className='product-price w-1/2 text-sm font-medium text-black'>
+            {currencyFormatter.format(price)}
           </div>
           <div className='card-buttons flex justify-evenly items-center w-1/2 h-8'>
             {isWishlist === -1 && (

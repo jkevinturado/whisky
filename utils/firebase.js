@@ -150,8 +150,7 @@ export const FirebaseGoogleSignUp = async () => {
 
 export const FirebaseSignOut = async () => {
   try {
-    const res = await signOut(fsAuth);
-    return res;
+    await signOut(fsAuth);
   } catch (error) {
     console.log(error);
   }
@@ -274,4 +273,32 @@ export const GetFirebaseProductsById = async (id) => {
 
     return responsedata.data();
   } catch (error) {}
+};
+
+export const getProductDetails = async (items) => {
+  const productdetails = await Promise.all(
+    items.map(async ({ productid, quantity }) => {
+      const productsfromdb = await GetFirebaseProductsById(productid);
+
+      const data = {
+        productid,
+        quantity,
+        productdetails: {
+          stocks: productsfromdb.quantity,
+          name: productsfromdb.name,
+          price: productsfromdb.price,
+          thumbnailfile: await getImageFireStorage(
+            productsfromdb.thumbnailfile
+          ),
+        },
+      };
+      return data;
+    })
+  );
+  const getSubTotal =
+    productdetails.reduce(
+      (acc, o) => acc + parseInt(o.quantity * o.productdetails.price),
+      0
+    ) || 0;
+  return { productdetails, getSubTotal };
 };

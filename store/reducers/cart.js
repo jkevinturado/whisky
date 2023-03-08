@@ -77,6 +77,10 @@ const cartReducer = (state = initialState, action) => {
       const { cart, cartItemCount } = action.payload;
       return { ...state, cart, cartItemCount };
     }
+    case REMOVE_TO_CART: {
+      const { cart, cartItemCount } = action.payload;
+      return { ...state, cart: cart, cartItemCount };
+    }
     case RESET_CART: {
       return { ...state, cart: [], cartItemCount: 0 };
     }

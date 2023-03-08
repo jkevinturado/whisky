@@ -6,6 +6,7 @@ import {
   faCartPlus,
   faStar,
 } from '@fortawesome/free-solid-svg-icons';
+import { currencyFormatter } from '../../utils/format';
 
 const ProductCard = ({ data }) => {
   const {
@@ -61,7 +62,9 @@ const ProductCard = ({ data }) => {
               </ul>
               ({ProductRating})
             </div>
-            <div className='product-price text-lg mt-3'>₱ {ProductPrice}</div>
+            <div className='product-price text-sm font-medium mt-3'>
+              {currencyFormatter.format(price)}
+            </div>
           </div>
         </div>
         <div className='card-footer flex h-10 justify-evenly items-center border-t-2 border-gray-200 text-lg text-center text-emerald-500'>
