@@ -3,6 +3,7 @@ import Head from 'next/head';
 import HeaderBar from './Header/Header';
 import Navbar from './Navbar/Navbar';
 import Modal from '../Dialogs/Modal';
+import WishlistDrawer from '../Dialogs/wishlistDrawer';
 
 const Header = ({ children }) => {
   return (
@@ -19,6 +20,7 @@ const Header = ({ children }) => {
         <Navbar />
       </div>
       <Modal />
+      <WishlistDrawer />
 
       <main>{children}</main>
     </>

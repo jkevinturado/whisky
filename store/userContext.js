@@ -11,7 +11,6 @@ import {
   FirebaseGoogleSignUp,
   fsAuth,
   GetUserByID,
-  AddToCartDB,
   RemoveCartItemtoDB,
 } from '../utils/firebase';
 import { GetCartItems, AddCartItems, ResetCart } from '../store/api/cart';
@@ -21,17 +20,18 @@ import {
   ResetWishlist,
 } from '../store/api/wishlist';
 import {
-  cartReducer,
+  userReducer,
   INITIALIZED,
   INITIALIZED_GUEST,
-  ADD_TO_CART,
+  UPDATE_CART,
   REMOVE_TO_CART,
   RESET_CART,
   ADD_TO_WISHLIST,
   RESET_WISHLIST,
+  REMOVE_TO_WISHLIST,
   LOGIN,
   LOGOUT,
-} from './reducers/cart';
+} from './reducers/user';
 
 const initialState = {
   isInitialized: false,
@@ -47,10 +47,11 @@ const initialState = {
   registerWithEmailandPass: (userdata) => {},
   registerWithGoogle: () => {},
   refreshToken: () => {},
-  addToCart: (product) => {},
+  updateCartItem: (product) => {},
   removeCartItem: (product) => {},
   resetCart: () => {},
   toggleWishlist: (product) => {},
+  removeWishlistItem: (id) => {},
   resetWishlist: () => {},
 };
 
@@ -65,7 +66,7 @@ const getCartItemCout = (cart) => {
 };
 
 const UserContextProvider = (props) => {
-  const [state, dispatch] = useReducer(cartReducer, initialState);
+  const [state, dispatch] = useReducer(userReducer, initialState);
 
   useEffect(
     () =>
@@ -110,7 +111,7 @@ const UserContextProvider = (props) => {
   );
 
   // console.log(state.wishlist);
-  // console.log(state.cart);
+  console.log(state.cart);
 
   const login = async (email, password) => {
     const user = await FireBaseSignWithEmailandPass(email, password);
@@ -145,38 +146,44 @@ const UserContextProvider = (props) => {
     dispatch({ type: LOGIN, payload: { user } });
   };
 
-  const addToCart = async (product) => {
+  const updateCartItem = async (id, quantity) => {
     let updatedProduct;
-    let quantity = 1;
     let cartItemCount = 0;
     let existingProduct;
-
+    let updatedCart;
+    console.log(state.cart);
     const existingProductIndex = state.cart.findIndex(({ productid }) => {
-      return productid === product.id;
+      return productid === id;
     });
 
     if (existingProductIndex >= 0) {
       updatedProduct = state.cart[existingProductIndex];
       updatedProduct.quantity = updatedProduct.quantity + quantity;
-      existingProduct = state.cart.filter(
-        ({ productid }) => productid !== product.id
-      );
+      console.log(updatedProduct.quantity);
+      existingProduct = state.cart.filter(({ productid }) => productid !== id);
+      if (updatedProduct.quantity === 0) {
+        updatedCart = [...existingProduct];
+      } else {
+        updatedCart = [...existingProduct, updatedProduct];
+      }
     } else {
       existingProduct = state.cart;
-      updatedProduct = { productid: product.id, quantity };
+      updatedProduct = { productid: id, quantity };
+      updatedCart = [...existingProduct, updatedProduct];
     }
-    let cart = [...existingProduct, updatedProduct];
-    cartItemCount = getCartItemCout(cart);
+    console.log(updatedCart);
+    cartItemCount = getCartItemCout(updatedCart);
     if (state.user) {
-      await AddCartItems(state.user.uid, cart, cartItemCount);
+      await AddCartItems(state.user.uid, updatedCart, cartItemCount);
     } else {
-      Cookies.set('cart', JSON.stringify(cart));
+      Cookies.set('cart', JSON.stringify(updatedCart));
     }
 
+    console.log(updatedCart);
     dispatch({
-      type: ADD_TO_CART,
+      type: UPDATE_CART,
       payload: {
-        cart,
+        updatedCart,
         cartItemCount,
       },
     });
@@ -185,7 +192,6 @@ const UserContextProvider = (props) => {
   const removeCartItem = async (id) => {
     const cart = state.cart.filter(({ productid }) => productid !== id);
     const cartItemCount = getCartItemCout(cart);
-    console.log(cartItemCount, cart);
 
     if (state.user) {
       await AddCartItems(state.user.uid, cart, cartItemCount);
@@ -251,6 +257,26 @@ const UserContextProvider = (props) => {
     });
   };
 
+  const removeWishlistItem = async (id) => {
+    const wishlist = state.wishlist.filter(({ productid }) => productid !== id);
+    const wishlistItemCount = getCartItemCout(wishlist);
+    console.log(wishlistItemCount, wishlist);
+
+    if (state.user) {
+      await AddWishLitsItems(state.user.uid, wishlist, wishlistItemCount);
+    } else {
+      Cookies.set('wishlist', JSON.stringify(wishlist));
+    }
+
+    dispatch({
+      type: REMOVE_TO_WISHLIST,
+      payload: {
+        wishlist,
+        wishlistItemCount,
+      },
+    });
+  };
+
   const resetWishlist = async () => {
     if (state.user) {
       await ResetWishlist(state.user.uid);
@@ -268,10 +294,11 @@ const UserContextProvider = (props) => {
     signInWithGoogle,
     registerWithEmailandPass,
     registerWithGoogle,
-    addToCart,
+    updateCartItem,
     removeCartItem,
     resetCart,
     toggleWishlist,
+    removeWishlistItem,
     resetWishlist,
   };
 

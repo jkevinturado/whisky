@@ -1,16 +1,18 @@
-import { createContext, useState } from 'react';
+import { createContext, useContext, useState } from 'react';
 
 const DialogContext = createContext({
   modalDetails: null,
   notification: null,
   showModal: (modalData) => {},
   hideModal: (modalData) => {},
+  toggleDrawer: () => {},
   showNotification: (notificationData) => {},
   hideNotification: (notificationData) => {},
 });
 
 const DialogContextProvider = (props) => {
   const [modal, setModal] = useState();
+  const [showDrawer, setShowDrawer] = useState(false);
   const [notification, setNotification] = useState();
   const { children } = props;
 
@@ -26,6 +28,10 @@ const DialogContextProvider = (props) => {
     setModal(null);
   };
 
+  const toggleDrawer = () => {
+    setShowDrawer(!showDrawer);
+  };
+
   const showNotification = (notificationData) => {
     setNotification({
       title: notificationData.title,
@@ -39,9 +45,11 @@ const DialogContextProvider = (props) => {
 
   const context = {
     modalDetails: modal,
+    showDrawer,
+    notification,
     showModal,
     hideModal,
-    notification,
+    toggleDrawer,
     showNotification,
     hideNotification,
   };
@@ -50,4 +58,8 @@ const DialogContextProvider = (props) => {
   );
 };
 
-export { DialogContext, DialogContextProvider };
+const useDialog = () => {
+  return useContext(DialogContext);
+};
+
+export { DialogContext, DialogContextProvider, useDialog };

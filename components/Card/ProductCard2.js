@@ -12,7 +12,7 @@ import { currencyFormatter } from '../../utils/format';
 
 const ProductCard2 = ({ data }) => {
   const router = useRouter();
-  const { addToCart, toggleWishlist, wishlist } = useAuth();
+  const { updateCartItem, toggleWishlist, wishlist } = useAuth();
   const { id, thumbnailfile, name, category, price } = data;
   const maxStar = 5;
   const isWishlist = wishlist
@@ -114,7 +114,7 @@ const ProductCard2 = ({ data }) => {
             )}
 
             <button
-              onClick={() => addToCart(data)}
+              onClick={() => updateCartItem(id, 1)}
               className='w-10 h-10 center rounded-full border-2 border-gray-500 hover:bg-emerald-500 hover:text-white hover:border-0 text-gray-500 transition ease-in duration-200'
             >
               <FontAwesomeIcon icon={faCartPlus} />

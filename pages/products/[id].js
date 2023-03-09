@@ -16,7 +16,7 @@ import {
 
 const ProductDetails = (props) => {
   const { product } = props;
-  const { cart, addToCart, toggleWishlist, wishlist } = useAuth();
+  const { cart, updateCartItem, toggleWishlist, wishlist } = useAuth();
 
   const { name, id, price, thumbnailfile, brand, description } = product[0];
 
@@ -67,7 +67,7 @@ const ProductDetails = (props) => {
           </div>
           <div className='product-buttons space-y-2 lg:flex lg:justify-start lg:items-center lg:space-x-2 lg:space-y-0'>
             <button
-              onClick={() => addToCart(product[0])}
+              onClick={() => updateCartItem(product[0].id, 1)}
               className='btn-primary w-full hover:bg-emerald-500 hover:text-white hover:border-emerald-500'
             >
               <FontAwesomeIcon icon={faCartPlus} className='mr-2' />
