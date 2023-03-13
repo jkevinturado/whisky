@@ -23,7 +23,8 @@ const WishlistDrawer = () => {
       let data = await getProductDetails(wishlist);
       setWishlistproduct(data.productdetails);
     };
-
+    console.log(wishlist);
+    console.log(wishlist.length);
     if (wishlist) {
       wishlistproductdetails();
     }

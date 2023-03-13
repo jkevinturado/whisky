@@ -52,6 +52,13 @@ const Header = () => {
             </Link>
           </div>
           <div className='search-bar-header w-1/3 flex justify-center'>
+            <select
+              name='search_cat'
+              id='search_cat'
+              className='border border-gray-300 bg-gray-50 hover:outline-gray-400 active:outline-gray-400 focus:outline-gray-400 text-lg'
+            >
+              <option value='all'>All</option>
+            </select>
             <input
               type='text'
               name='search'

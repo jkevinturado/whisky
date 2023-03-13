@@ -100,8 +100,8 @@ const UserContextProvider = (props) => {
             payload: {
               cart: guestCart,
               cartItemCount: getCartItemCout(guestCart),
-              wishlist: guestwishlist,
-              wishlistItemCount: guestwishlist.length,
+              wishlist: guestwishlist.wishlist,
+              wishlistItemCount: guestwishlist.wishlist.length,
             },
           });
         }
@@ -111,7 +111,7 @@ const UserContextProvider = (props) => {
   );
 
   // console.log(state.wishlist);
-  console.log(state.cart);
+  // console.log(state.cart);
 
   const login = async (email, password) => {
     const user = await FireBaseSignWithEmailandPass(email, password);

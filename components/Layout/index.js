@@ -1,11 +1,15 @@
 import React, { useContext } from 'react';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import HeaderBar from './Header/Header';
+import Header2 from './Header/Header2';
 import Navbar from './Navbar/Navbar';
 import Modal from '../Dialogs/Modal';
 import WishlistDrawer from '../Dialogs/wishlistDrawer';
 
 const Header = ({ children }) => {
+  const { pathname } = useRouter();
+  console.log(pathname.split('/')[1]);
   return (
     <>
       <Head>
@@ -16,8 +20,15 @@ const Header = ({ children }) => {
         />
       </Head>
       <div className='bg-white flex flex-col ' style={{ height: '17vh' }}>
-        <HeaderBar />
-        <Navbar />
+        {pathname.split('/')[1] === 'checkout' ||
+        pathname.split('/')[1] === 'auth' ? (
+          <Header2 />
+        ) : (
+          <>
+            <HeaderBar />
+            <Navbar />
+          </>
+        )}
       </div>
       <Modal />
       <WishlistDrawer />

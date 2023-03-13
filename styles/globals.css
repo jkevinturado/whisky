@@ -15,6 +15,10 @@
   @apply block w-full p-1.5 border-2 rounded-md border-gray-200 text-sm text-gray-600;
 }
 
+.form-textbox-secondary {
+  @apply block w-full p-2 border rounded-sm border-gray-300 text-sm text-gray-600;
+}
+
 .form-button-primary {
   @apply w-full p-1.5 font-medium tracking-wide text-slate-100 border-2 rounded-md overflow-hidden bg-emerald-400;
 }
